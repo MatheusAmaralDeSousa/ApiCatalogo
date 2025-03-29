@@ -1,5 +1,7 @@
-﻿using ApiCatalogo.Interface;
+﻿using ApiCatalogo.DTO;
+using ApiCatalogo.Interface;
 using ApiCatalogo.Models;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ApiCatalogo.Controllers
@@ -9,11 +11,13 @@ namespace ApiCatalogo.Controllers
     public class UserController : ControllerBase
     {
         public readonly IUserRepository _userRepository;
-        public UserController(IUserRepository userRepository)
+        public readonly IMapper _mapper;
+        public UserController(IUserRepository userRepository, IMapper mapper)
         {
             _userRepository = userRepository;
+            _mapper = mapper;
         }
-        [HttpGet("{int:id}")]
+        [HttpGet("{id:int}")]
         public async Task<ActionResult<User>> GetUser(int id)  
         {
             var user = await _userRepository.GetById(id);
@@ -21,7 +25,8 @@ namespace ApiCatalogo.Controllers
             {
                 return BadRequest("User not null");
             }
-            return Ok(user);
+            var UserDTO = _mapper.Map<UserDTO>(user);
+            return Ok(UserDTO);
         }
         [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
@@ -31,22 +36,24 @@ namespace ApiCatalogo.Controllers
             {
                 return NotFound("Not found Users.");
             }
-            return Ok(Users);
+            var UsersDTO = _mapper.Map<IEnumerable<UserDTO>>(Users);
+            return Ok(UsersDTO);
         }
         [HttpPost]
-        public async Task<ActionResult<User>> CreateUser(User user)
+        public async Task<ActionResult<User>> CreateUser(UserDTO userDTO)
         {
-            if (user == null)
+            var User = _mapper.Map<User>(userDTO);
+            if (userDTO == null)
             {
                 BadRequest("User not null");
             }
-            _userRepository.Add(user);
+            _userRepository.Add(User);
 
             if(await _userRepository.SavelAll())
             {
                 //Aqui nessa ação são passadas a rota(Url) ao qual vai retornar após cadastrar um produto
                 //Depois informa qual o id que foi cadastrado e também o Produto(Retornar um status 201).
-                return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user);
+                return CreatedAtAction(nameof(GetUser), new { id = userDTO.Id }, userDTO);
             }
             return BadRequest("User not found.");
         }

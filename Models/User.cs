@@ -6,6 +6,7 @@ namespace ApiCatalogo.Models
     [Table("Users")]
     public class User
     {
+        [Key]
         [Required]
         public int Id { get; set; }
         [Required]
