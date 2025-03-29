@@ -1,23 +1,40 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ApiCatalogo.Models
 {
     [Table("Users")]
     public class User
     {
+        [Required]
         public int Id { get; set; }
+        [Required]
+        [StringLength(150)]
         public string Name { get; set; }
+        [Required]
+        [StringLength(100)]
         public string Email { get; set; }
-        public int age { get; set; }
-
+        [Required]
+        [StringLength(10)]
+        public string Password { get; set; }
+        [Required]
+        [StringLength(14)]
+        public string CPF { get; set; }
+        [Required]
+        [Range(0, 999)]
+        public int Age { get; set; }
+        [Required]
         public DateTime CreatedDate { get; set; }
+        //Faz com que o Ef Core reconheça corretamente a classe User.
+        public User() { }
 
-        public User(int id, string name, string email, int age, DateTime createdDate)
+        public User(string name, string email, string password, string cpf, int age, DateTime createdDate)
         {
-            Id = id;
             Name = name;
             Email = email;
-            this.age = age;
+            Password = password;
+            CPF = cpf;
+            Age = age;
             CreatedDate = createdDate;
         }
     }
